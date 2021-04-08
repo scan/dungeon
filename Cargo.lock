@@ -826,8 +826,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_tilemap"
-version = "0.3.1"
-source = "git+https://github.com/joshuajbouw/bevy_tilemap.git?branch=bevy_0.5#d1848585098458acd53042e010ae82b8aa02b826"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75d0bd763ae3097b6cae253813cce9553effc5d2255ec979d55204ad5a049541"
 dependencies = [
  "bevy_app 0.5.0",
  "bevy_asset 0.5.0",
@@ -850,7 +851,8 @@ dependencies = [
 [[package]]
 name = "bevy_tilemap_types"
 version = "0.4.0"
-source = "git+https://github.com/joshuajbouw/bevy_tilemap.git?branch=bevy_0.5#d1848585098458acd53042e010ae82b8aa02b826"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c5603c437567f56ebc708f857a573c94d4f1bc4ab8c0384a95a5b68535ff60dd"
 dependencies = [
  "bevy_math 0.4.0",
  "bevy_render 0.4.0",
