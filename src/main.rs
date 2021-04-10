@@ -1,5 +1,4 @@
-mod component;
-mod system;
+mod loading;
 
 use bevy::prelude::*;
 use bevy_tilemap::prelude::*;
@@ -7,9 +6,8 @@ use bevy_tilemap::prelude::*;
 fn main() {
   App::build()
     .add_plugins(DefaultPlugins)
-    .add_startup_system(setup.system())
-    .add_startup_system(setup_tilemap.system())
-    .add_system(animate_sprite_system.system())
+    .add_startup_system(loading::setup.system())
+    .add_system(loading::load.system())
     .run();
 }
 
@@ -49,7 +47,7 @@ fn setup(
       transform: Transform::from_scale(Vec3::splat(4.0)),
       ..Default::default()
     })
-    .insert(Timer::from_seconds(0.1, true));
+    .insert(Timer::from_seconds(0.25, true));
 }
 
 fn setup_tilemap(asset_server: Res<AssetServer>) {

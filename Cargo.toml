@@ -5,6 +5,7 @@ authors = ["Tom Streller <tom@streller.me>"]
 edition = "2018"
 
 [dependencies]
+anyhow = "1.0"
 bevy = "0.5"
 bevy_tilemap = "0.4"
 bracket-pathfinding = "0.8"
