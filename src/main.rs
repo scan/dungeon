@@ -1,4 +1,5 @@
 mod loading;
+mod tilemap;
 
 use bevy::prelude::*;
 use bevy_tilemap::prelude::*;
