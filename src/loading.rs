@@ -1,10 +1,13 @@
 use bevy::prelude::*;
 use bevy_tilemap::prelude::*;
 
+use super::tilemap::GeneratedMap;
+
 pub struct LoadingScreenPlugin;
 impl Plugin for LoadingScreenPlugin {
   fn build(&self, app: &mut AppBuilder) {
     app
+      .init_resource::<GeneratedMap>()
       .add_startup_system(setup.system());
   }
 }
@@ -19,7 +22,9 @@ fn setup(
     TextureAtlas::from_grid(tiles_texture, Vec2::new(32.0, 32.0), 9, 1);
   let atlas_handle = texture_atlases.add(texture_atlas);
 
-  let tilemap = super::tilemap::generate_map(atlas_handle).unwrap();
+  let generated_map = GeneratedMap::new_random(50, 50, 5);
+
+  let tilemap = generated_map.tilemap(atlas_handle).unwrap();
   let tilemap_components = TilemapBundle {
     tilemap,
     visible: Visible {
@@ -29,6 +34,8 @@ fn setup(
     transform: Default::default(),
     global_transform: Default::default(),
   };
+
+  commands.insert_resource(generated_map);
 
   commands
     .spawn()
