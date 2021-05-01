@@ -2,7 +2,10 @@ use anyhow::Result;
 use bevy::prelude::*;
 use bevy_tilemap::prelude::*;
 use rand::{distributions::Standard, prelude::*};
-use std::collections::HashMap;
+use std::{
+  cmp::{max, min},
+  collections::HashMap,
+};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum TileType {
@@ -26,23 +29,98 @@ impl Distribution<TileType> for Standard {
   }
 }
 
+#[derive(Debug, PartialEq, Copy, Clone)]
+struct RoomRect(Rect<i32>);
+
+impl RoomRect {
+  pub fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
+    RoomRect(Rect {
+      left: x,
+      top: y,
+      right: x + w,
+      bottom: y + h,
+    })
+  }
+
+  // Returns true if this overlaps with other
+  pub fn intersect(&self, other: &Self) -> bool {
+    self.0.left <= other.0.right
+      && self.0.left >= other.0.left
+      && self.0.top <= other.0.bottom
+      && self.0.bottom >= other.0.top
+  }
+
+  pub fn center(&self) -> (i32, i32) {
+    (
+      (self.0.left + self.0.right) / 2,
+      (self.0.top + self.0.bottom) / 2,
+    )
+  }
+
+  fn apply_to_map(&self, tiles: &mut TileData) {
+    for y in self.0.top + 1..=self.0.bottom {
+      for x in self.0.left + 1..=self.0.right {
+        tiles.insert((x, y), TileType::Floor);
+      }
+    }
+  }
+}
+
+type TileData = HashMap<(i32, i32), TileType>;
+
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct GeneratedMap {
   width: u32,
   height: u32,
-  rooms: usize,
+  rooms: Vec<RoomRect>,
 
-  tiles: HashMap<(u32, u32), TileType>,
+  tiles: TileData,
+}
+
+fn apply_horizontal_tunnel(
+  tiles: &mut TileData,
+  left: i32,
+  right: i32,
+  y: i32,
+) {
+  for x in min(left, right)..=max(left, right) {
+    tiles.insert((x, y), TileType::Floor);
+  }
+}
+
+fn apply_vertical_tunnel(tiles: &mut TileData, x: i32, top: i32, bottom: i32) {
+  for y in min(top, bottom)..=max(top, bottom) {
+    tiles.insert((x, y), TileType::Floor);
+  }
 }
 
 impl GeneratedMap {
-  pub fn new_random(width: u32, height: u32, rooms: usize) -> Self {
-    let mut tiles = HashMap::with_capacity((width * height) as usize);
+  pub fn new_random(width: u32, height: u32, max_rooms: usize) -> Self {
+    let mut tiles = TileData::with_capacity((width * height) as usize);
+    let mut rooms = Vec::with_capacity(max_rooms);
 
     let mut rng = rand::thread_rng();
-    for y in 0..width {
-      for x in 0..height {
-        tiles.insert((x, y), rng.gen());
+
+    const MIN_SIZE: i32 = 6;
+    const MAX_SIZE: i32 = 10;
+
+    for _ in 0..max_rooms {
+      let w = rng.gen_range(MIN_SIZE..=MAX_SIZE);
+      let h = rng.gen_range(MIN_SIZE..=MAX_SIZE);
+      let x = rng.gen_range(1..(width as i32) - w - 1);
+      let y = rng.gen_range(1..(height as i32) - h - 1);
+      let new_room = RoomRect::new(x, y, w, h);
+      let mut ok = true;
+
+      for other_room in rooms.iter() {
+        if new_room.intersect(other_room) {
+          ok = false
+        }
+      }
+
+      if ok {
+        new_room.apply_to_map(&mut tiles);
+        rooms.push(new_room);
       }
     }
 
@@ -76,10 +154,10 @@ impl GeneratedMap {
 
     let mut tiles = Vec::with_capacity((self.width * self.height) as usize);
 
-    for y in 0..self.height {
-      for x in 0..self.width {
-        let py = (y as i32) - (self.height as i32) / 2;
-        let px = (x as i32) - (self.width as i32) / 2;
+    for y in 0..(self.height as i32) {
+      for x in 0..(self.width as i32) {
+        let py = y - (self.height as i32 / 2);
+        let px = x - (self.width as i32 / 2);
 
         let tile = Tile {
           point: (px, py),
@@ -95,7 +173,7 @@ impl GeneratedMap {
     return Ok(tilemap);
   }
 
-  fn tile_for_position(&self, x: u32, y: u32) -> usize {
+  fn tile_for_position(&self, x: i32, y: i32) -> usize {
     let key = (x, y);
     match self.tiles.get(&key) {
       Some(TileType::Floor) => 7,

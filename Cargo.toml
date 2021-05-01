@@ -10,6 +10,7 @@ bevy = "0.5"
 bevy_tilemap = "0.4"
 bracket-pathfinding = "0.8"
 direction = { version = "0.18", features = ["serde", "rand"] }
+heron = { version = "0.5", default-features = false, features = ["2d"] }
 log = "0.4"
 rand = "0.8"
 serde = "1.0"
