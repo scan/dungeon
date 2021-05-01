@@ -1,8 +1,21 @@
+mod game;
 mod loading;
 mod tilemap;
 
 use bevy::prelude::*;
 use bevy_tilemap::prelude::*;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum GameState {
+  Loading,
+  Running,
+}
+
+impl Default for GameState {
+  fn default() -> Self {
+    Self::Loading
+  }
+}
 
 fn main() {
   App::build()
@@ -17,8 +30,10 @@ fn main() {
       vsync: true,
       ..Default::default()
     })
+    .add_state(GameState::Loading)
     .add_plugins(DefaultPlugins)
     .add_plugin(TilemapPlugin)
     .add_plugin(loading::LoadingScreenPlugin)
+    .add_plugin(game::GamePlugin)
     .run();
 }

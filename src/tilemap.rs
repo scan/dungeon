@@ -120,6 +120,19 @@ impl GeneratedMap {
 
       if ok {
         new_room.apply_to_map(&mut tiles);
+
+        if !rooms.is_empty() {
+          let (new_x, new_y) = new_room.center();
+          let (prev_x, prev_y) = rooms[rooms.len() - 1].center();
+          if rng.gen() {
+            apply_horizontal_tunnel(&mut tiles, prev_x, new_y, prev_y);
+            apply_vertical_tunnel(&mut tiles, new_x, prev_y, new_y);
+          } else {
+            apply_vertical_tunnel(&mut tiles, prev_x, prev_y, new_y);
+            apply_horizontal_tunnel(&mut tiles, prev_x, new_x, new_y);
+          }
+        }
+
         rooms.push(new_room);
       }
     }
@@ -179,5 +192,9 @@ impl GeneratedMap {
       Some(TileType::Floor) => 7,
       _ => 0,
     }
+  }
+
+  pub fn start_position(&self) -> (i32, i32) {
+    self.rooms.first().unwrap().center()
   }
 }
