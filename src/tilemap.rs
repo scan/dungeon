@@ -159,7 +159,6 @@ impl GeneratedMap {
       .add_layer(
         TilemapLayer {
           kind: LayerKind::Dense,
-          ..Default::default()
         },
         0,
       )
@@ -184,7 +183,7 @@ impl GeneratedMap {
 
     tilemap.insert_tiles(tiles)?;
 
-    return Ok(tilemap);
+    Ok(tilemap)
   }
 
   fn tile_for_position(&self, x: i32, y: i32) -> usize {
