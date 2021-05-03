@@ -43,6 +43,7 @@ impl RoomRect {
   }
 
   // Returns true if this overlaps with other
+  #[allow(clippy::suspicious_operation_groupings)]
   pub fn intersect(&self, other: &Self) -> bool {
     self.0.left <= other.0.right
       && self.0.left >= other.0.left
