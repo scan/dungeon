@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "run dungeon",
+      "program": "cargo",
+      "args": ["run"],
+      "cwd": "${workspaceFolder}",
+      "sourceMap": {},
+      "sourceLanguages": [
+        "rust"
+      ],
+      "env": {
+        "RUST_BACKTRACE": "short"
+      }
+    }
+  ]
+}
