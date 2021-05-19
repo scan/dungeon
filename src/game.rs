@@ -88,22 +88,18 @@ fn move_player(
   }
 }
 
+#[allow(clippy::type_complexity)]
 fn center_camera(
   mut q: QuerySet<(
     Query<&Transform, (Changed<Transform>, With<Player>)>,
     Query<&mut Transform, With<Camera>>,
   )>,
 ) {
-  let mut player_translation = None;
+  let player_translation_result = q.q0().single().map(|&x| x);
 
-  for player_transform in q.q0().iter() {
-    player_translation = Some(player_transform.translation);
-    break;
-  }
-
-  if let Some(pos) = player_translation {
+  if let Ok(player_translation) = player_translation_result {
     for mut camera_transform in q.q1_mut().iter_mut() {
-      camera_transform.translation = pos.clone();
+      camera_transform.translation = player_translation.translation;
     }
   }
 }
