@@ -1,3 +1,4 @@
+mod actions;
 mod game;
 mod loading;
 mod tilemap;
@@ -33,6 +34,7 @@ fn main() {
     .add_state(GameState::Loading)
     .add_plugins(DefaultPlugins)
     .add_plugin(TilemapPlugin)
+    .add_plugin(actions::ActionsPlugin)
     .add_plugin(loading::LoadingScreenPlugin)
     .add_plugin(game::GamePlugin)
     .run();

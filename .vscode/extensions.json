@@ -3,6 +3,7 @@
     "editorconfig.editorconfig",
     "matklad.rust-analyzer",
     "a5huynh.vscode-ron",
-    "bungcip.better-toml"
+    "bungcip.better-toml",
+    "vadimcn.vscode-lldb"
   ]
 }

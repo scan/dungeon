@@ -1,7 +1,10 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, render::camera::Camera};
 use bevy_tilemap::prelude::*;
 
-use crate::{loading::TextureAtlasAssets, tilemap::GeneratedMap, GameState};
+use crate::{
+  actions::Actions, loading::TextureAtlasAssets, tilemap::GeneratedMap,
+  GameState,
+};
 
 pub struct Player;
 
@@ -16,7 +19,8 @@ impl Plugin for GamePlugin {
       )
       .add_system_set(
         SystemSet::on_update(GameState::Running)
-          .with_system(move_player.system()),
+          .with_system(move_player.system())
+          .with_system(center_camera.system()),
       );
   }
 }
@@ -63,4 +67,39 @@ fn setup(mut commands: Commands) {
     .insert_bundle(OrthographicCameraBundle::new_2d());
 }
 
-fn move_player() {}
+fn move_player(
+  time: Res<Time>,
+  actions: Res<Actions>,
+  mut player_query: Query<&mut Transform, With<Player>>,
+) {
+  if actions.player_movement.is_none() {
+    return;
+  }
+
+  let speed = 150.;
+  let movement = Vec3::new(
+    actions.player_movement.unwrap().x * speed * time.delta_seconds(),
+    actions.player_movement.unwrap().y * speed * time.delta_seconds(),
+    0.,
+  );
+
+  for mut player_transform in player_query.iter_mut() {
+    player_transform.translation += movement;
+  }
+}
+
+#[allow(clippy::type_complexity)]
+fn center_camera(
+  mut q: QuerySet<(
+    Query<&Transform, (Changed<Transform>, With<Player>)>,
+    Query<&mut Transform, With<Camera>>,
+  )>,
+) {
+  let player_translation_result = q.q0().single().map(|&x| x);
+
+  if let Ok(player_translation) = player_translation_result {
+    for mut camera_transform in q.q1_mut().iter_mut() {
+      camera_transform.translation = player_translation.translation;
+    }
+  }
+}
