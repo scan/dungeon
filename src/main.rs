@@ -5,6 +5,7 @@ mod tilemap;
 
 use bevy::prelude::*;
 use bevy_tilemap::prelude::*;
+use heron::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GameState {
@@ -34,6 +35,7 @@ fn main() {
     .add_state(GameState::Loading)
     .add_plugins(DefaultPlugins)
     .add_plugin(TilemapPlugin)
+    .add_plugin(PhysicsPlugin::default())
     .add_plugin(actions::ActionsPlugin)
     .add_plugin(loading::LoadingScreenPlugin)
     .add_plugin(game::GamePlugin)

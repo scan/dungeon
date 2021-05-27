@@ -1,5 +1,6 @@
 use bevy::{prelude::*, render::camera::Camera};
 use bevy_tilemap::prelude::*;
+use direction::CardinalDirection;
 
 use crate::{
   actions::Actions, loading::TextureAtlasAssets, tilemap::GeneratedMap,
@@ -58,7 +59,8 @@ fn generate_map(
       )),
       ..Default::default()
     })
-    .insert(Player);
+    .insert(Player)
+    .insert(CardinalDirection::South);
 }
 
 fn setup(mut commands: Commands) {
@@ -70,7 +72,10 @@ fn setup(mut commands: Commands) {
 fn move_player(
   time: Res<Time>,
   actions: Res<Actions>,
-  mut player_query: Query<&mut Transform, With<Player>>,
+  mut player_query: Query<
+    (&mut Transform, &mut CardinalDirection),
+    With<Player>,
+  >,
 ) {
   if actions.player_movement.is_none() {
     return;
@@ -83,8 +88,20 @@ fn move_player(
     0.,
   );
 
-  for mut player_transform in player_query.iter_mut() {
+  for (mut player_transform, mut direction) in player_query.iter_mut() {
     player_transform.translation += movement;
+
+    if movement.x != 0.0 && movement.y != 0.0 {
+      *direction = if movement.x < 0.0 {
+        CardinalDirection::West
+      } else if movement.x > 0.0 {
+        CardinalDirection::East
+      } else if movement.y > 0.0 {
+        CardinalDirection::North
+      } else {
+        CardinalDirection::South
+      }
+    }
   }
 }
 
